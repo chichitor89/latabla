@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabla de jugadores</title>
+  <style>
+    table {
+      width: 90%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      text-align: center;
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #333;
+      color: rgb(0, 0, 0);
+    }
+    /* Colores por columna */
+    td:nth-child(2), th:nth-child(2) { background-color: #e3f2fd; } /* Partidos - azul claro */
+    td:nth-child(3), th:nth-child(3) { background-color: #c8e6c9; } /* Ganados - verde claro */
+    td:nth-child(4), th:nth-child(4) { background-color: #fff9c4; } /* Empatados - amarillo */
+    td:nth-child(5), th:nth-child(5) { background-color: #ffcdd2; } /* Perdidos - rojo claro */
+    td:nth-child(6), th:nth-child(6) { background-color: #d1c4e9; } /* Goles - violeta claro */
+    td:nth-child(7), th:nth-child(7) { background-color: #b2dfdb; } /* Puntos - turquesa */
+    
+    /* Efecto hover */
+    tr:hover {
+      background-color: #ffe082;
+    }
+
+    /* Valores negativos en Goles */
+    td:nth-child(6) {
+      color: black; /* por defecto */
+    }
+    td:nth-child(6):before {
+      content: attr(data-value);
+    }
+    td[data-value^="-"] {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Jugador</th>
+      <th>Partidos</th>
+      <th>Ganados</th>
+      <th>Empatados</th>
+      <th>Perdidos</th>
+      <th>Goles</th>
+      <th>Puntos</th>
+    </tr>
+    <tr><td>Marce S</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="5"></td><td>2</td></tr>
+    <tr><td>Cucho</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="2"></td><td>2</td></tr>
+    <tr><td>Sapo</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="2"></td><td>2</td></tr>
+    <tr><td>Chicho</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="1"></td><td>2</td></tr>
+    <tr><td>Masita</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="0"></td><td>2</td></tr>
+    <tr><td>Terzo</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="0"></td><td>2</td></tr>
+    <tr><td>Agus D</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="0"></td><td>2</td></tr>
+    <tr><td>Pape</td><td>1</td><td>1</td><td>0</td><td>0</td><td data-value="-8"></td><td>2</td></tr>
+    <tr><td>Choco</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="5"></td><td>0</td></tr>
+    <tr><td>Fabi</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="2"></td><td>0</td></tr>
+    <tr><td>Seba</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="1"></td><td>0</td></tr>
+    <tr><td>Vargas</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="0"></td><td>0</td></tr>
+    <tr><td>Joaco</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="0"></td><td>0</td></tr>
+    <tr><td>Ricky</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="0"></td><td>0</td></tr>
+    <tr><td>Javi</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="0"></td><td>0</td></tr>
+    <tr><td>Benja</td><td>1</td><td>0</td><td>0</td><td>1</td><td data-value="-10"></td><td>0</td></tr>
+  </table>
+</body>
+</html>
