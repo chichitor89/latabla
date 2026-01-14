@@ -2,62 +2,70 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <div style="text-align: center; margin-top: 30px;">
-    <img src="logo.png" alt="Logo Pro Amateur Futbol Club" style="width: 150px; height: auto;">
-    <h1>Pro Amateur Futbol Club ⚽</h1>
-  </div>
-  <title>Tabla de jugadores</title>
+  <title>Pro Amateur Futbol Club ⚽</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-top: 10px;
-    }
-    table {
-      width: 90%;
-      border-collapse: collapse;
-      margin: 20px auto;
-      box-shadow: 0 0 10px rgba(107, 107, 107, 0.1);
-    }
-    th, td {
-      text-align: center;
-      padding: 8px;
-      border: 1px solid #d1d0d0;
-      cursor: pointer;
-    }
-    th {
-      background-color: #cccaca;
-      color: rgb(27, 27, 27);
-    }
+    body { font-family: Arial, sans-serif; background-color: #ffffff; }
+    h1 { text-align: center; color: #333; margin-top: 10px; }
+    table { width: 90%; border-collapse: collapse; margin: 20px auto; box-shadow: 0 0 10px rgba(107,107,107,0.1); }
+    th, td { text-align: center; padding: 8px; border: 1px solid #d1d0d0; cursor: pointer; }
+    th { background-color: #cccaca; color: rgb(27,27,27); }
+
     /* Colores por columna */
-    td:nth-child(2), th:nth-child(2) { background-color: #e3f2fd; }
-    td:nth-child(3), th:nth-child(3) { background-color: #c8e6c9; }
-    td:nth-child(4), th:nth-child(4) { background-color: #fff9c4; }
-    td:nth-child(5), th:nth-child(5) { background-color: #ffcdd2; }
-    td:nth-child(6), th:nth-child(6) { background-color: #d1c4e9; }
-    td:nth-child(7), th:nth-child(7) { background-color: #b2dfdb; }
-    
-    /* Hover normal */
-    tr:hover {
-      background-color: #ffe082;
-    }
+    td:nth-child(2), th:nth-child(2) { background-color: #e3f2fd; } /* Partidos */
+    td:nth-child(3), th:nth-child(3) { background-color: #c8e6c9; } /* Ganados */
+    td:nth-child(4), th:nth-child(4) { background-color: #fff9c4; } /* Empatados */
+    td:nth-child(5), th:nth-child(5) { background-color: #ffcdd2; } /* Perdidos */
+    td:nth-child(6), th:nth-child(6) { background-color: #d1c4e9; } /* Goles */
+    td:nth-child(7), th:nth-child(7) { background-color: #b2dfdb; } /* Puntos */
 
-    /* Valores negativos en Goles */
-    td:nth-child(6).negativo {
-      color: red;
-      font-weight: bold;
-    }
+    tr:hover { background-color: #ffe082; }
+    td:nth-child(6).negativo { color: red; font-weight: bold; }
+    tr.seleccionado td { background-color: #444 !important; color: #fff; font-weight: bold; }
 
-    /* Estilo para fila seleccionada: casillas en oscuro */
-    tr.seleccionado td {
-      background-color: #444 !important; /* gris oscuro */
-      color: #fff; /* texto claro para contraste */
-      font-weight: bold;
+    /* Tarjeta de partido */
+    .partido {
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px auto;
+      width: 85%;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      position: relative;
+    }
+    .partido-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
+    .partido-header h2 { margin: 0; color: #222; }
+    .resultado { font-size: 20px; font-weight: bold; color: #444; }
+
+    /* Botón eliminar (solo admin lo verá) */
+    .eliminar {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      display: none;
+    }
+    .eliminar:hover { background: #d32f2f; }
+
+    /* Equipos */
+    .equipos { display: flex; justify-content: space-between; gap: 20px; }
+    .equipo { flex: 1; border-radius: 8px; padding: 15px; }
+    .equipo h3 { margin-top: 0; text-align: center; font-size: 18px; }
+    .equipo.blanco { background-color: #e3f2fd; }
+    .equipo.negro { background-color: #f0f0f0; }
+    .equipo ul { list-style: none; padding: 0; margin: 0; }
+    .equipo ul li {
+      display: block;
+      margin: 5px 0;
+      padding: 6px;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -65,13 +73,8 @@
   <h1>Tabla de Jugadores ⚽</h1>
   <table id="tabla">
     <tr>
-      <th>Jugador</th>
-      <th>Partidos</th>
-      <th>Ganados</th>
-      <th>Empatados</th>
-      <th>Perdidos</th>
-      <th>Goles</th>
-      <th>Puntos</th>
+      <th>Jugador</th><th>Partidos</th><th>Ganados</th><th>Empatados</th>
+      <th>Perdidos</th><th>Goles</th><th>Puntos</th>
     </tr>
     <tr><td>Marce S</td><td>1</td><td>1</td><td>0</td><td>0</td><td>5</td><td>2</td></tr>
     <tr><td>Cucho</td><td>1</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2</td></tr>
@@ -91,7 +94,114 @@
     <tr><td>Benja</td><td>1</td><td>0</td><td>0</td><td>1</td><td class="negativo">-10</td><td>0</td></tr>
   </table>
 
+  <h1>Historial de Partidos 📅</h1>
+  <div id="historial"></div>
+
+  <!-- Login -->
+  <div id="login" style="text-align:center; margin:20px;">
+    <input type="password" id="clave" placeholder="Ingrese contraseña">
+    <button onclick="validarClave()">Acceder</button>
+  </div>
+
+  <!-- Formulario oculto -->
+  <form id="formPartido" style="text-align:center; margin:20px; display:none;">
+    <input type="date" id="fecha" required>
+    <input type="text" id="resultado" placeholder="Resultado (Ej: Blanco 10 - 8 Negro)" required><br><br>
+    <textarea id="equipoBlanco" placeholder="Jugadores equipo blanco con goles (separados por coma o salto de línea)" rows="4" cols="40" required></textarea><br>
+    <textarea id="equipoNegro" placeholder="Jugadores equipo negro con goles (separados por coma o salto de línea)" rows="4" cols="40" required></textarea><br>
+    <button type="submit">Registrar Partido</button>
+  </form>
+
   <script>
+    let esAdmin = false;
+
+    function validarClave() {
+      const clave = document.getElementById("clave").value;
+      if (clave === "rodolfo123") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("formPartido").style.display = "block";
+        esAdmin = true;
+        // Mostrar botones eliminar existentes si ya hay tarjetas
+        document.querySelectorAll(".eliminar").forEach(btn => btn.style.display = "block");
+      } else {
+        alert("Contraseña incorrecta");
+      }
+    }
+
+    const historial = document.getElementById("historial");
+    const form = document.getElementById("formPartido");
+
+    // Utilidad: convierte texto en lista limpia (coma o salto de línea)
+    function aLista(texto) {
+      return texto
+        .split(/[\n,]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      reconstruirHistorial();
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const partido = {
+        fecha: document.getElementById("fecha").value,
+        resultado: document.getElementById("resultado").value,
+        equipoBlanco: aLista(document.getElementById("equipoBlanco").value),
+        equipoNegro: aLista(document.getElementById("equipoNegro").value)
+      };
+      const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
+      partidos.push(partido);
+      localStorage.setItem("partidos", JSON.stringify(partidos));
+      mostrarPartido(partido, partidos.length - 1);
+      form.reset();
+    });
+
+    function mostrarPartido(p, index) {
+      const div = document.createElement("div");
+      div.classList.add("partido");
+      div.innerHTML = `
+        <button class="eliminar">Eliminar</button>
+        <div class="partido-header">
+          <h2>Fecha: ${p.fecha}</h2>
+          <div class="resultado">${p.resultado}</div>
+        </div>
+        <div class="equipos">
+          <div class="equipo blanco">
+            <h3>Equipo Blanco</h3>
+            <ul>${p.equipoBlanco.map(j => `<li>${j}</li>`).join("")}</ul>
+          </div>
+          <div class="equipo negro">
+            <h3>Equipo Negro</h3>
+            <ul>${p.equipoNegro.map(j => `<li>${j}</li>`).join("")}</ul>
+          </div>
+        </div>
+      `;
+
+      const btnEliminar = div.querySelector(".eliminar");
+      if (esAdmin) btnEliminar.style.display = "block";
+
+      btnEliminar.addEventListener("click", () => {
+        if (!esAdmin) return;
+        const ok = confirm("¿Seguro que querés borrar este partido?");
+        if (!ok) return;
+        const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
+        partidos.splice(index, 1);
+        localStorage.setItem("partidos", JSON.stringify(partidos));
+        reconstruirHistorial();
+      });
+
+      historial.appendChild(div);
+    }
+
+    function reconstruirHistorial() {
+      historial.innerHTML = "";
+      const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
+      partidos.forEach((p, i) => mostrarPartido(p, i));
+    }
+
+    // Selección de filas en la tabla
     const filas = document.querySelectorAll("#tabla tr");
     filas.forEach((fila, index) => {
       if (index === 0) return; // saltar cabecera
