@@ -113,128 +113,67 @@
   </form>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy 
-    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // Configuración Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjXZKX0fKQPppIJtAkRXF7kLyi1gHZ8I8",
-      authDomain: "la-tabla-lunes.firebaseapp.com",
-      projectId: "la-tabla-lunes",
-      storageBucket: "la-tabla-lunes.firebasestorage.app",
-      messagingSenderId: "292738400112",
-      appId: "1:292738400112:web:9aad980132e81d19ddd9b5",
-      measurementId: "G-8HY6ZDBGKZ"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjXZKX0fKQPppIJtAkRXF7kLyi1gHZ8I8",
+    authDomain: "la-tabla-lunes.firebaseapp.com",
+    projectId: "la-tabla-lunes",
+    storageBucket: "la-tabla-lunes.firebasestorage.app",
+    messagingSenderId: "292738400112",
+    appId: "1:292738400112:web:9aad980132e81d19ddd9b5",
+    measurementId: "G-8HY6ZDBGKZ"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    let esAdmin = false;
-
-    const historial = document.getElementById("historial");
-    const form = document.getElementById("formPartido");
-
-    // Login simple (cliente)
-    window.validarClave = function validarClave() {
-      const clave = document.getElementById("clave").value;
-      if (clave === "rodolfo123") {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("formPartido").style.display = "block";
-        esAdmin = true;
-        document.querySelectorAll(".eliminar").forEach(btn => btn.style.display = "block");
-      } else {
-        alert("Contraseña incorrecta");
-      }
+  // Guardar partido
+  async function guardarPartido(partido) {
+    try {
+      const ref = await addDoc(collection(db, "partidos"), partido);
+      console.log("✅ Partido guardado con ID:", ref.id);
+    } catch (e) {
+      console.error("❌ Error al guardar:", e);
+      alert("No se pudo guardar el partido. Revisa la consola.");
     }
+  }
 
-    // Utilidad: convierte texto en lista limpia (coma o salto de línea)
-    function aLista(texto) {
-      return texto
-        .split(/[\n,]+/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-    }
-
-    // Registrar partido en Firestore
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      const partido = {
-        fecha: document.getElementById("fecha").value,
-        resultado: document.getElementById("resultado").value,
-        equipoBlanco: aLista(document.getElementById("equipoBlanco").value),
-        equipoNegro: aLista(document.getElementById("equipoNegro").value),
-        creadoEn: new Date().toISOString()
-      };
-      try {
-        await addDoc(collection(db, "partidos"), partido);
-        form.reset();
-      } catch (e) {
-        console.error("Error al guardar: ", e);
-        alert("Ocurrió un error al guardar el partido.");
-      }
-    });
-
-    // Render de una tarjeta de partido
-    function mostrarPartido(p, id) {
+  // Suscripción en tiempo real
+  const historial = document.getElementById("historial");
+  const q = query(collection(db, "partidos"), orderBy("creadoEn", "desc"));
+  onSnapshot(q, (snapshot) => {
+    historial.innerHTML = "";
+    snapshot.forEach(docSnap => {
+      const p = docSnap.data();
       const div = document.createElement("div");
-      div.classList.add("partido");
-      div.innerHTML = `
-        <button class="eliminar">Eliminar</button>
-        <div class="partido-header">
-          <h2>Fecha: ${p.fecha || "-"}</h2>
-          <div class="resultado">${p.resultado || "-"}</div>
-        </div>
-        <div class="equipos">
-          <div class="equipo blanco">
-            <h3>Equipo Blanco</h3>
-            <ul>${(p.equipoBlanco || []).map(j => `<li>${j}</li>`).join("")}</ul>
-          </div>
-          <div class="equipo negro">
-            <h3>Equipo Negro</h3>
-            <ul>${(p.equipoNegro || []).map(j => `<li>${j}</li>`).join("")}</ul>
-          </div>
-        </div>
-      `;
-
-      const btnEliminar = div.querySelector(".eliminar");
-      if (esAdmin) btnEliminar.style.display = "block";
-
-      btnEliminar.addEventListener("click", async () => {
-        if (!esAdmin) return;
-        const ok = confirm("¿Seguro que querés borrar este partido?");
-        if (!ok) return;
-        try {
-          await deleteDoc(doc(db, "partidos", id));
-        } catch (e) {
-          console.error("Error al eliminar: ", e);
-          alert("No se pudo eliminar el partido.");
-        }
-      });
-
+      div.textContent = `${p.fecha} - ${p.resultado}`;
       historial.appendChild(div);
-    }
-
-    // Suscripción en tiempo real al historial (ordenado por fecha si existe, si no por creadoEn)
-    const q = query(collection(db, "partidos"), orderBy("creadoEn", "desc"));
-    onSnapshot(q, (snapshot) => {
-      historial.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        mostrarPartido(docSnap.data(), docSnap.id);
-      });
     });
+    console.log("📡 Snapshot actualizado. Total:", snapshot.size);
+  }, (err) => {
+    console.error("❌ Error en onSnapshot:", err);
+  });
 
-    // Selección de filas en la tabla
-    const filas = document.querySelectorAll("#tabla tr");
-    filas.forEach((fila, index) => {
-      if (index === 0) return; // saltar cabecera
-      fila.addEventListener("click", () => {
-        filas.forEach(f => f.classList.remove("seleccionado"));
-        fila.classList.add("seleccionado");
-      });
+  // Ejemplo de prueba: botón para guardar un partido de prueba
+  const testBtn = document.createElement("button");
+  testBtn.textContent = "Probar escritura en Firestore";
+  testBtn.onclick = () => {
+    guardarPartido({
+      fecha: "2026-01-14",
+      resultado: "Blanco 1 - 0 Negro",
+      equipoBlanco: ["Test Blanco"],
+      equipoNegro: ["Test Negro"],
+      creadoEn: new Date().toISOString()
     });
-  </script>
+  };
+  document.body.appendChild(testBtn);
+</script>
+
 </body>
 </html>
+
