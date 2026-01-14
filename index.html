@@ -11,12 +11,12 @@
     th { background-color: #cccaca; color: rgb(27,27,27); }
 
     /* Colores por columna */
-    td:nth-child(2), th:nth-child(2) { background-color: #e3f2fd; } /* Partidos */
-    td:nth-child(3), th:nth-child(3) { background-color: #c8e6c9; } /* Ganados */
-    td:nth-child(4), th:nth-child(4) { background-color: #fff9c4; } /* Empatados */
-    td:nth-child(5), th:nth-child(5) { background-color: #ffcdd2; } /* Perdidos */
-    td:nth-child(6), th:nth-child(6) { background-color: #d1c4e9; } /* Goles */
-    td:nth-child(7), th:nth-child(7) { background-color: #b2dfdb; } /* Puntos */
+    td:nth-child(2), th:nth-child(2) { background-color: #e3f2fd; }
+    td:nth-child(3), th:nth-child(3) { background-color: #c8e6c9; }
+    td:nth-child(4), th:nth-child(4) { background-color: #fff9c4; }
+    td:nth-child(5), th:nth-child(5) { background-color: #ffcdd2; }
+    td:nth-child(6), th:nth-child(6) { background-color: #d1c4e9; }
+    td:nth-child(7), th:nth-child(7) { background-color: #b2dfdb; }
 
     tr:hover { background-color: #ffe082; }
     td:nth-child(6).negativo { color: red; font-weight: bold; }
@@ -112,24 +112,43 @@
     <button type="submit">Registrar Partido</button>
   </form>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    // Configuración Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjXZKX0fKQPppIJtAkRXF7kLyi1gHZ8I8",
+      authDomain: "la-tabla-lunes.firebaseapp.com",
+      projectId: "la-tabla-lunes",
+      storageBucket: "la-tabla-lunes.firebasestorage.app",
+      messagingSenderId: "292738400112",
+      appId: "1:292738400112:web:9aad980132e81d19ddd9b5",
+      measurementId: "G-8HY6ZDBGKZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     let esAdmin = false;
 
-    function validarClave() {
+    const historial = document.getElementById("historial");
+    const form = document.getElementById("formPartido");
+
+    // Login simple (cliente)
+    window.validarClave = function validarClave() {
       const clave = document.getElementById("clave").value;
       if (clave === "rodolfo123") {
         document.getElementById("login").style.display = "none";
         document.getElementById("formPartido").style.display = "block";
         esAdmin = true;
-        // Mostrar botones eliminar existentes si ya hay tarjetas
         document.querySelectorAll(".eliminar").forEach(btn => btn.style.display = "block");
       } else {
         alert("Contraseña incorrecta");
       }
     }
-
-    const historial = document.getElementById("historial");
-    const form = document.getElementById("formPartido");
 
     // Utilidad: convierte texto en lista limpia (coma o salto de línea)
     function aLista(texto) {
@@ -139,42 +158,43 @@
         .filter(s => s.length > 0);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      reconstruirHistorial();
-    });
-
-    form.addEventListener("submit", e => {
+    // Registrar partido en Firestore
+    form.addEventListener("submit", async e => {
       e.preventDefault();
       const partido = {
         fecha: document.getElementById("fecha").value,
         resultado: document.getElementById("resultado").value,
         equipoBlanco: aLista(document.getElementById("equipoBlanco").value),
-        equipoNegro: aLista(document.getElementById("equipoNegro").value)
+        equipoNegro: aLista(document.getElementById("equipoNegro").value),
+        creadoEn: new Date().toISOString()
       };
-      const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
-      partidos.push(partido);
-      localStorage.setItem("partidos", JSON.stringify(partidos));
-      mostrarPartido(partido, partidos.length - 1);
-      form.reset();
+      try {
+        await addDoc(collection(db, "partidos"), partido);
+        form.reset();
+      } catch (e) {
+        console.error("Error al guardar: ", e);
+        alert("Ocurrió un error al guardar el partido.");
+      }
     });
 
-    function mostrarPartido(p, index) {
+    // Render de una tarjeta de partido
+    function mostrarPartido(p, id) {
       const div = document.createElement("div");
       div.classList.add("partido");
       div.innerHTML = `
         <button class="eliminar">Eliminar</button>
         <div class="partido-header">
-          <h2>Fecha: ${p.fecha}</h2>
-          <div class="resultado">${p.resultado}</div>
+          <h2>Fecha: ${p.fecha || "-"}</h2>
+          <div class="resultado">${p.resultado || "-"}</div>
         </div>
         <div class="equipos">
           <div class="equipo blanco">
             <h3>Equipo Blanco</h3>
-            <ul>${p.equipoBlanco.map(j => `<li>${j}</li>`).join("")}</ul>
+            <ul>${(p.equipoBlanco || []).map(j => `<li>${j}</li>`).join("")}</ul>
           </div>
           <div class="equipo negro">
             <h3>Equipo Negro</h3>
-            <ul>${p.equipoNegro.map(j => `<li>${j}</li>`).join("")}</ul>
+            <ul>${(p.equipoNegro || []).map(j => `<li>${j}</li>`).join("")}</ul>
           </div>
         </div>
       `;
@@ -182,24 +202,29 @@
       const btnEliminar = div.querySelector(".eliminar");
       if (esAdmin) btnEliminar.style.display = "block";
 
-      btnEliminar.addEventListener("click", () => {
+      btnEliminar.addEventListener("click", async () => {
         if (!esAdmin) return;
         const ok = confirm("¿Seguro que querés borrar este partido?");
         if (!ok) return;
-        const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
-        partidos.splice(index, 1);
-        localStorage.setItem("partidos", JSON.stringify(partidos));
-        reconstruirHistorial();
+        try {
+          await deleteDoc(doc(db, "partidos", id));
+        } catch (e) {
+          console.error("Error al eliminar: ", e);
+          alert("No se pudo eliminar el partido.");
+        }
       });
 
       historial.appendChild(div);
     }
 
-    function reconstruirHistorial() {
+    // Suscripción en tiempo real al historial (ordenado por fecha si existe, si no por creadoEn)
+    const q = query(collection(db, "partidos"), orderBy("creadoEn", "desc"));
+    onSnapshot(q, (snapshot) => {
       historial.innerHTML = "";
-      const partidos = JSON.parse(localStorage.getItem("partidos")) || [];
-      partidos.forEach((p, i) => mostrarPartido(p, i));
-    }
+      snapshot.forEach(docSnap => {
+        mostrarPartido(docSnap.data(), docSnap.id);
+      });
+    });
 
     // Selección de filas en la tabla
     const filas = document.querySelectorAll("#tabla tr");
