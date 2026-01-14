@@ -2,6 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <div style="text-align:center; margin-top:20px;">
+  <img src="logo.png" alt="Logo Pro Amateur Futbol Club" width="120">
+</div>
+
   <title>Pro Amateur Futbol Club ⚽</title>
   <style>
     body { font-family: Arial, sans-serif; background-color: #ffffff; }
@@ -22,51 +26,76 @@
     td:nth-child(6).negativo { color: red; font-weight: bold; }
     tr.seleccionado td { background-color: #444 !important; color: #fff; font-weight: bold; }
 
-    /* Tarjeta de partido */
-    .partido {
-      border-radius: 12px;
-      padding: 20px;
-      margin: 25px auto;
-      width: 85%;
-      background: #ffffff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      position: relative;
+    /* Contenedor en flex */
+    #historial {
+      display: flex;
+      flex-wrap: wrap;   /* permite que bajen si no entran */
+      gap: 15px;         /* espacio entre tarjetas */
+      justify-content: center; /* centrado */
     }
-    .partido-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
-    .partido-header h2 { margin: 0; color: #222; }
-    .resultado { font-size: 20px; font-weight: bold; color: #444; }
 
-    /* Botón eliminar (solo admin lo verá) */
-    .eliminar {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: #ff5252;
-      color: #fff;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      display: none;
+    /* Tarjeta compacta */
+    .partido.mini {
+      width: 250px;      /* tamaño fijo más chico */
+      padding: 8px;
+      font-size: 12px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    .eliminar:hover { background: #d32f2f; }
 
-    /* Equipos */
-    .equipos { display: flex; justify-content: space-between; gap: 20px; }
-    .equipo { flex: 1; border-radius: 8px; padding: 15px; }
-    .equipo h3 { margin-top: 0; text-align: center; font-size: 18px; }
+    .partido-header {
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      text-align: center;
+    }
+
+    .partido-header h4 {
+      font-size: 13px;
+      margin: 2px 0;
+    }
+
+    .resultado {
+      font-size: 12px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .equipos {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .equipo {
+      flex: 1;
+      padding: 4px;
+      border-radius: 5px;
+    }
+
+    .equipo h5 {
+      font-size: 12px;
+      text-align: center;
+      margin: 2px 0;
+    }
+
+    .equipo ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .equipo ul li {
+      font-size: 11px;
+      margin: 2px 0;
+      padding: 2px;
+      background: #f9f9f9;
+      border-radius: 3px;
+    }
+
     .equipo.blanco { background-color: #e3f2fd; }
     .equipo.negro { background-color: #f0f0f0; }
-    .equipo ul { list-style: none; padding: 0; margin: 0; }
-    .equipo ul li {
-      display: block;
-      margin: 5px 0;
-      padding: 6px;
-      background: #fff;
-      border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
   </style>
 </head>
 <body>
@@ -95,85 +124,63 @@
   </table>
 
   <h1>Historial de Partidos 📅</h1>
-  <div id="historial"></div>
+  <div id="historial">
+    <!-- Partido 1 -->
+    <div class="partido mini">
+      <div class="partido-header">
+        <h4>12/01/2026</h4>
+        <span class="resultado">1era Fecha - Blanco 10 - 8 Negro</span>
+      </div>
+      <div class="equipos">
+        <div class="equipo blanco">
+          <h5>Equipo Blanco</h5>
+          <ul>
+            <li>Pape</li>
+            <li>Masita</li>
+            <li>Sapo (2)</li>
+            <li>Chicho (1)</li>
+            <li>Marce S (5)</li>
+            <li>Cucho (2)</li>
+            <li>Terzo</li>
+            <li>Agus D</li>
+          </ul>
+        </div>
+        <div class="equipo negro">
+          <h5>Equipo Negro</h5>
+          <ul>
+            <li>Benja</li>
+            <li>Joaco</li>
+            <li>Vargas</li>
+            <li>Ricky</li>
+            <li>Javi</li>
+            <li>Seba (1)</li>
+            <li>Choco (5)</li>
+            <li>Fabi (2)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-  <!-- Login -->
-  <div id="login" style="text-align:center; margin:20px;">
-    <input type="password" id="clave" placeholder="Ingrese contraseña">
-    <button onclick="validarClave()">Acceder</button>
+    
+    
+
+
   </div>
+  <script>
+  // Selección de filas en la tabla
+  const filas = document.querySelectorAll("#tabla tr");
 
-  <!-- Formulario oculto -->
-  <form id="formPartido" style="text-align:center; margin:20px; display:none;">
-    <input type="date" id="fecha" required>
-    <input type="text" id="resultado" placeholder="Resultado (Ej: Blanco 10 - 8 Negro)" required><br><br>
-    <textarea id="equipoBlanco" placeholder="Jugadores equipo blanco con goles (separados por coma o salto de línea)" rows="4" cols="40" required></textarea><br>
-    <textarea id="equipoNegro" placeholder="Jugadores equipo negro con goles (separados por coma o salto de línea)" rows="4" cols="40" required></textarea><br>
-    <button type="submit">Registrar Partido</button>
-  </form>
-
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDjXZKX0fKQPppIJtAkRXF7kLyi1gHZ8I8",
-    authDomain: "la-tabla-lunes.firebaseapp.com",
-    projectId: "la-tabla-lunes",
-    storageBucket: "la-tabla-lunes.firebasestorage.app",
-    messagingSenderId: "292738400112",
-    appId: "1:292738400112:web:9aad980132e81d19ddd9b5",
-    measurementId: "G-8HY6ZDBGKZ"
-  };
-
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Guardar partido
-  async function guardarPartido(partido) {
-    try {
-      const ref = await addDoc(collection(db, "partidos"), partido);
-      console.log("✅ Partido guardado con ID:", ref.id);
-    } catch (e) {
-      console.error("❌ Error al guardar:", e);
-      alert("No se pudo guardar el partido. Revisa la consola.");
-    }
-  }
-
-  // Suscripción en tiempo real
-  const historial = document.getElementById("historial");
-  const q = query(collection(db, "partidos"), orderBy("creadoEn", "desc"));
-  onSnapshot(q, (snapshot) => {
-    historial.innerHTML = "";
-    snapshot.forEach(docSnap => {
-      const p = docSnap.data();
-      const div = document.createElement("div");
-      div.textContent = `${p.fecha} - ${p.resultado}`;
-      historial.appendChild(div);
+  filas.forEach(fila => {
+    fila.addEventListener("click", () => {
+      // Quitar selección previa
+      filas.forEach(f => f.classList.remove("seleccionado"));
+      // Marcar la fila actual
+      fila.classList.add("seleccionado");
     });
-    console.log("📡 Snapshot actualizado. Total:", snapshot.size);
-  }, (err) => {
-    console.error("❌ Error en onSnapshot:", err);
   });
-
-  // Ejemplo de prueba: botón para guardar un partido de prueba
-  const testBtn = document.createElement("button");
-  testBtn.textContent = "Probar escritura en Firestore";
-  testBtn.onclick = () => {
-    guardarPartido({
-      fecha: "2026-01-14",
-      resultado: "Blanco 1 - 0 Negro",
-      equipoBlanco: ["Test Blanco"],
-      equipoNegro: ["Test Negro"],
-      creadoEn: new Date().toISOString()
-    });
-  };
-  document.body.appendChild(testBtn);
 </script>
 
 </body>
 </html>
+
 
